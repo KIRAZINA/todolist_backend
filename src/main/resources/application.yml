@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: todolist_backend
+
+spring.profiles.active: dev
+
+server:
+  port: 8080
+
+jwt:
+  secret: your-very-long-secret-key-at-least-256-bits-1234567890abcdef
+  expiration-ms: 86400000
