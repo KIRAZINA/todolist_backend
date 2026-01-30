@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,13 +32,15 @@ class TaskServiceTest {
     @Test
     void shouldThrowForbiddenWhenNotOwner() {
         User owner = User.builder().id(1L).build();
-        User intruder = User.builder().id(2L).build();
+        User intruder = User.builder().id(2L).roles(Set.of("USER")).build();
         Task task = Task.builder().id(1L).user(owner).build();
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
         assertThrows(ForbiddenException.class, () ->
                 taskService.getTaskById(1L, intruder));
+        
+        verify(taskRepository).findById(1L);
     }
 
     @Test

@@ -7,6 +7,9 @@ spring.profiles.active: dev
 server:
   port: 8080
 
+# JWT Configuration
+# IMPORTANT: In production, set JWT_SECRET environment variable!
+# The default value below is only for development/testing
 jwt:
-  secret: your-very-long-secret-key-at-least-256-bits-1234567890abcdef
-  expiration-ms: 86400000
+  secret: ${JWT_SECRET:default-dev-secret-key-at-least-256-bits-1234567890abcdef}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}  # 24 hours

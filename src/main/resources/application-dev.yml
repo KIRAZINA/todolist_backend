@@ -26,6 +26,12 @@ springdoc:
   api-docs:
     path: /v3/api-docs
   remove-broken-reference-definitions: false
+
+# Cache configuration
+spring.cache:
+  type: simple
+  cache-names: users
+
 # Alternative for SQLite (comment out PostgreSQL if using)
 # spring:
 #   datasource:

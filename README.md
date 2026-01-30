@@ -9,15 +9,24 @@ A **production-ready** REST API for a To-Do List application built with modern S
 
 ## Features
 - Java 17 + Spring Boot 3.3+
-- JWT-based authentication & authorization
-- Task ownership protection (users can only access their own tasks)
-- Role-based access (USER / ADMIN)
-- OpenAPI 3.1 specification with beautiful Swagger UI
-- Pagination, sorting, filtering
-- Unified response wrapper (`ApiResponse<T>`)
-- Input validation + global exception handling
-- 95%+ test coverage (integration + unit tests)
-- Clean layered architecture
+- **Security**:
+  - JWT-based authentication & authorization
+  - Role-based access (USER / ADMIN)
+  - Secure password handling (BCrypt)
+  - CORS configuration for frontend integration
+  - Rate limiting support
+  - Security event logging
+- **Performance**:
+  - Database indexing for high-performance queries
+  - Caching support (UserDetailsService usage)
+  - Optimized JPA queries
+- **Documentation**:
+  - OpenAPI 3.1 specification with beautiful Swagger UI
+- **Quality**:
+  - Unified response wrapper (`ApiResponse<T>`)
+  - Input validation + global exception handling
+  - 95%+ test coverage (integration + unit tests)
+  - Clean layered architecture
 
 ## Live API Documentation
 After starting the app:  
@@ -30,6 +39,23 @@ http://localhost:8080/swagger-ui.html
 git clone https://github.com/KIRAZINA/todolist_backend.git
 cd todolist_backend
 ./mvnw spring-boot:run
+```
+
+## Environment Variables
+For production deployment, set the following environment variables:
+
+| Variable | Description | Default (Dev Only) |
+|----------|-------------|-------------------|
+| `JWT_SECRET` | Secret key for JWT token signing (min 256 bits) | `default-dev-secret-key-at-least-256-bits-1234567890abcdef` |
+| `JWT_EXPIRATION_MS` | JWT token expiration time in milliseconds | `86400000` (24 hours) |
+
+**⚠️ IMPORTANT:** Never use the default JWT secret in production! Generate a secure random key:
+```bash
+# Linux/Mac
+openssl rand -base64 64
+
+# Or use online generator
+# https://www.grc.com/passwords.htm
 ```
 
 ## Main Endpoints
@@ -54,10 +80,24 @@ cd todolist_backend
 - JUnit 5 + MockMvc + Mockito
 - Maven
 
-## Running Tests
+## Testing
+The project includes a comprehensive test suite covering all layers:
+
+### Running Tests
 ```bash
+# Run all tests
 ./mvnw test
+
+# Run specific test class
+./mvnw test -Dtest=JwtAuthenticationFilterTest
 ```
+
+### Test Coverage
+- **Unit Tests**: Security layers, Services, Utilities
+- **Integration Tests**: Controllers (MockMvc), Database (H2)
+- **Security Tests**: Auth flows, JWT validation, Filter chains
+
+The test suite uses a dedicated `IntegrationTestBase` and `TestDataBuilder` for consistent and reliable testing.
 
 ## Database (dev profile)
 - H2 in-memory database

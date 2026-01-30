@@ -34,6 +34,7 @@ public class TaskCreateRequest {
 
     @Schema(description = "Status: TODO, IN_PROGRESS, DONE", example = "TODO")
     @ValidEnumValue(enumClass = Task.Status.class, message = "Invalid status value")
+    @Builder.Default
     private String status = "TODO";
 
     @Schema(description = "Due date (ISO format)", example = "2025-12-31")

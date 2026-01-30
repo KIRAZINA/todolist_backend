@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -33,6 +34,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      * Find tasks due on a specific date for a user.
      */
     List<Task> findByUserAndDueDate(User user, LocalDate dueDate);
+
+    /**
+     * Find all tasks due on a specific date (for scheduler/reminders).
+     */
+    @Query("SELECT t FROM Task t WHERE t.dueDate = :date")
+    List<Task> findByDueDate(@Param("date") LocalDate date);
 
     /**
      * Bulk delete all completed tasks for a user.

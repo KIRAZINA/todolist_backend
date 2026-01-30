@@ -140,8 +140,11 @@ public class TaskService {
      * Validate that the task belongs to the current user or user is ADMIN.
      */
     private void validateTaskOwnership(Task task, User currentUser) {
-        if (!task.getUser().getId().equals(currentUser.getId()) &&
-                !currentUser.getRoles().contains("ADMIN")) {
+        boolean isOwner = task.getUser().getId().equals(currentUser.getId());
+        boolean isAdmin = currentUser.getRoles().contains("ADMIN") || 
+                         currentUser.getRoles().contains("ROLE_ADMIN");
+        
+        if (!isOwner && !isAdmin) {
             throw new ForbiddenException("You do not have permission to access this task");
         }
     }
@@ -151,10 +154,6 @@ public class TaskService {
      */
     @Transactional(readOnly = true)
     public List<Task> getTasksDueOnDate(java.time.LocalDate date) {
-        // In real app: filter by user + due date
-        // For scheduler: get all due tasks
-        return taskRepository.findAll().stream()
-                .filter(t -> t.getDueDate() != null && t.getDueDate().equals(date))
-                .collect(Collectors.toList());
+        return taskRepository.findByDueDate(date);
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class TaskControllerIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
@@ -39,12 +41,14 @@ class TaskControllerIntegrationTest {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
-                        new UserRegisterRequest("user1", "pass123", "user1@example.com"))));
+                        new UserRegisterRequest("user1", "password123", "user1@example.com"))))
+                .andExpect(status().isOk());
 
         MvcResult login1 = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
-                                new UserLoginRequest("user1", "pass123"))))
+                                new UserLoginRequest("user1", "password123"))))
+                .andExpect(status().isOk())
                 .andReturn();
 
         user1Token = extractToken(login1);
@@ -53,12 +57,14 @@ class TaskControllerIntegrationTest {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
-                        new UserRegisterRequest("user2", "pass123", "user2@example.com"))));
+                        new UserRegisterRequest("user2", "password123", "user2@example.com"))))
+                .andExpect(status().isOk());
 
         MvcResult login2 = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
-                                new UserLoginRequest("user2", "pass123"))))
+                                new UserLoginRequest("user2", "password123"))))
+                .andExpect(status().isOk())
                 .andReturn();
 
         user2Token = extractToken(login2);
@@ -80,7 +86,7 @@ class TaskControllerIntegrationTest {
         create.setDescription("Backend project");
         create.setPriority("HIGH");                    // String
         create.setStatus("TODO");                      // String
-        create.setDueDate(LocalDate.of(2025, 12, 31)); // ← LocalDate!
+        create.setDueDate(LocalDate.of(2026, 12, 31)); // ← LocalDate!
 
         MvcResult result = mockMvc.perform(post("/api/tasks")
                         .header("Authorization", bearer(user1Token))
@@ -162,6 +168,7 @@ class TaskControllerIntegrationTest {
     void shouldDeleteAllCompletedTasks() throws Exception {
         TaskCreateRequest req = new TaskCreateRequest();
         req.setTitle("Done Task");
+        req.setPriority("LOW");
         req.setStatus("DONE");
 
         mockMvc.perform(post("/api/tasks")

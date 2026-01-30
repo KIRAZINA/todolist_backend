@@ -7,6 +7,7 @@ import com.example.todo.exception.ResourceNotFoundException;
 import com.example.todo.mapper.UserMapper;
 import com.example.todo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.Set;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -33,9 +35,11 @@ public class UserService {
     @Transactional
     public UserResponse register(UserRegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
+            log.warn("Registration failed: username already exists - {}", request.getUsername());
             throw new IllegalArgumentException("Username already exists");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
+            log.warn("Registration failed: email already exists - {}", request.getEmail());
             throw new IllegalArgumentException("Email already exists");
         }
 
@@ -47,6 +51,7 @@ public class UserService {
                 .build();
 
         user = userRepository.save(user);
+        log.info("New user created: {} (ID: {})", user.getUsername(), user.getId());
         return userMapper.toResponse(user);
     }
 

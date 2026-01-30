@@ -16,7 +16,12 @@ import java.time.LocalDateTime;
  * </p>
  */
 @Entity
-@Table(name = "tasks")
+@Table(name = "tasks", indexes = {
+    @Index(name = "idx_task_user", columnList = "user_id"),
+    @Index(name = "idx_task_status", columnList = "status"),
+    @Index(name = "idx_task_due_date", columnList = "due_date"),
+    @Index(name = "idx_task_user_status", columnList = "user_id, status")
+})
 @Getter
 @Setter
 @NoArgsConstructor

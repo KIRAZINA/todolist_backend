@@ -13,7 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Authentication", description = "User registration and login")
 public class AuthController {
 
@@ -45,7 +48,9 @@ public class AuthController {
     })
     @PostMapping("/register")
     public com.example.todo.dto.common.ApiResponse<UserResponse> register(@Valid @RequestBody UserRegisterRequest request) {
+        log.info("Registration attempt for username: {}", request.getUsername());
         UserResponse response = userService.register(request);
+        log.info("User registered successfully: {}", request.getUsername());
         return com.example.todo.dto.common.ApiResponse.created(response, "User registered successfully");
     }
 
@@ -60,17 +65,24 @@ public class AuthController {
     })
     @PostMapping("/login")
     public com.example.todo.dto.common.ApiResponse<Map<String, String>> login(@Valid @RequestBody UserLoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            log.info("Login attempt for username: {}", request.getUsername());
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtTokenProvider.generateToken(authentication);
-        Map<String, String> data = Map.of("token", jwt, "type", "Bearer");
+            String jwt = jwtTokenProvider.generateToken(authentication);
+            Map<String, String> data = Map.of("token", jwt, "type", "Bearer");
 
-        return com.example.todo.dto.common.ApiResponse.success(data, "Login successful");
+            log.info("Login successful for username: {}", request.getUsername());
+            return com.example.todo.dto.common.ApiResponse.success(data, "Login successful");
+        } catch (BadCredentialsException e) {
+            log.warn("Failed login attempt for username: {}", request.getUsername());
+            throw e;
+        }
     }
 }

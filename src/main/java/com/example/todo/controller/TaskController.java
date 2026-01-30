@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class TaskController {
             @ApiResponse(responseCode = "403", description = "Unauthorized")
     })
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public com.example.todo.dto.common.ApiResponse<TaskResponse> createTask(
             @Valid @RequestBody TaskCreateRequest request) {
         TaskResponse response = taskService.createTask(request, getCurrentUser());

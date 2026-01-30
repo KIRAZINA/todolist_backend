@@ -28,6 +28,7 @@ public class TaskUpdateRequest {
     private String priority;
 
     @ValidEnumValue(enumClass = Task.Status.class, message = "Invalid status value")
+    @Builder.Default
     private String status = "TODO";
 
     private LocalDate dueDate;

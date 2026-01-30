@@ -61,5 +61,6 @@ public class User {
      * Optional flag for email verification.
      * Can be used in future for verification flow.
      */
+    @Builder.Default
     private boolean enabled = true;
 }

@@ -2,6 +2,7 @@ package com.example.todo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 /**
  * Main application class for the To-Do List backend.
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @SpringBootApplication enables auto-configuration, component scanning, and other Spring Boot features.
  */
 @SpringBootApplication
+@EnableCaching
 public class TodoApplication {
 
     /**

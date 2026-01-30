@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Utility class for JWT token generation and validation.
@@ -66,6 +65,21 @@ public class JwtTokenProvider {
         try {
             getClaimsParser().parseSignedClaims(token);
             return true;
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            log.error("JWT token is expired: {}", e.getMessage());
+            return false;
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            log.error("JWT token is malformed: {}", e.getMessage());
+            return false;
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            log.error("JWT signature validation failed: {}", e.getMessage());
+            return false;
+        } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+            log.error("JWT token is unsupported: {}", e.getMessage());
+            return false;
+        } catch (IllegalArgumentException e) {
+            log.error("JWT claims string is empty: {}", e.getMessage());
+            return false;
         } catch (Exception e) {
             log.error("JWT validation error: {}", e.getMessage());
             return false;
