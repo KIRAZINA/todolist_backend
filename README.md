@@ -1,7 +1,7 @@
 # To-Do List Backend — Spring Boot 3 + JWT + OpenAPI
 
 ![Java 17](https://img.shields.io/badge/Java-17-orange)
-![Spring Boot 3
+![Spring Boot 3](https://img.shields.io/badge/Spring_Boot-3.3.5-green)
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Coverage](https://img.shields.io/badge/Test_Coverage-95%25%2B-brightgreen)
 
