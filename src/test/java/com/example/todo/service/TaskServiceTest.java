@@ -2,9 +2,7 @@ package com.example.todo.service;
 
 import com.example.todo.entity.Task;
 import com.example.todo.entity.User;
-import com.example.todo.exception.ForbiddenException;
 import com.example.todo.exception.ResourceNotFoundException;
-import com.example.todo.mapper.TaskMapper;
 import com.example.todo.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,31 +11,26 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
 
     @Mock TaskRepository taskRepository;
-    @Mock TaskMapper taskMapper;
-    @Mock UserService userService;
-    @Mock AuditService auditService;
 
     @InjectMocks TaskService taskService;
 
     @Test
-    void shouldThrowForbiddenWhenNotOwner() {
+    void shouldThrowNotFoundWhenNotOwner() {
         User owner = User.builder().id(1L).build();
-        User intruder = User.builder().id(2L).roles(Set.of("USER")).build();
+        User intruder = User.builder().id(2L).role("USER").build();
         Task task = Task.builder().id(1L).user(owner).build();
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
-        assertThrows(ForbiddenException.class, () ->
+        assertThrows(ResourceNotFoundException.class, () ->
                 taskService.getTaskById(1L, intruder));
         
         verify(taskRepository).findById(1L);

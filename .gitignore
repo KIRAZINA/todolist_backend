@@ -1,28 +1,37 @@
+# Maven
 target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+build/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
+out/
+
+# VS Code
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.metadata/
 
 # Compiled class files
 *.class
 
 # Log files
 *.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
 
 # Package Files
 *.jar
@@ -33,25 +42,26 @@ target/
 *.tar.gz
 *.rar
 
-# Maven
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
+# Virtual Machine Crash Logs
+hs_err_pid*
+replay_pid*
 
-.idea/
-out/
+# OS
+.DS_Store
+Thumbs.db
 
-# Application secrets (never commit!)
-application-prod.yml
-application-local.yml
+# Application config (secrets)
 src/main/resources/application-*.yml
 !src/main/resources/application.yml
 !src/main/resources/application-dev.yml
 !src/main/resources/application-test.yml
 
-# H2 DB files (in case you switch to file-based)
+# H2 Database files
 *.db
 *.trace.db
+*.mv.db
+*.lock.db
+
+# Environment files
+.env
+.env.local

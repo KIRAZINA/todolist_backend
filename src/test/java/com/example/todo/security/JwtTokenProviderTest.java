@@ -7,13 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,7 +31,7 @@ class JwtTokenProviderTest {
                         .username("testuser")
                         .password("password")
                         .email("test@example.com")
-                        .roles(Set.of("USER"))
+                        .role("USER")
                         .build()
         );
         
@@ -54,7 +51,7 @@ class JwtTokenProviderTest {
                         .username("john.doe")
                         .password("password")
                         .email("john@example.com")
-                        .roles(Set.of("USER"))
+                        .role("USER")
                         .build()
         );
         
@@ -69,12 +66,11 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldRejectExpiredToken() {
-        // Create an expired token manually
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         String expiredToken = Jwts.builder()
                 .subject("testuser")
                 .issuedAt(new Date(System.currentTimeMillis() - 10000))
-                .expiration(new Date(System.currentTimeMillis() - 5000)) // Expired 5 seconds ago
+                .expiration(new Date(System.currentTimeMillis() - 5000))
                 .signWith(key)
                 .compact();
 
@@ -90,7 +86,6 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldRejectTokenWithInvalidSignature() {
-        // Create token with different secret
         SecretKey wrongKey = Keys.hmacShaKeyFor("different-secret-key-at-least-256-bits-1234567890abcdef".getBytes());
         String tokenWithWrongSignature = Jwts.builder()
                 .subject("testuser")
@@ -119,7 +114,7 @@ class JwtTokenProviderTest {
                         .username("testuser")
                         .password("password")
                         .email("test@example.com")
-                        .roles(Set.of("USER"))
+                        .role("USER")
                         .build()
         );
         
@@ -129,17 +124,17 @@ class JwtTokenProviderTest {
         String token = jwtTokenProvider.generateToken(auth);
 
         assertNotNull(token);
-        assertTrue(token.split("\\.").length == 3); // JWT has 3 parts
+        assertTrue(token.split("\\.").length == 3);
     }
 
     @Test
-    void shouldHandleMultipleRoles() {
+    void shouldHandleAdminRole() {
         CustomUserDetails userDetails = new CustomUserDetails(
                 com.example.todo.entity.User.builder()
                         .username("admin")
                         .password("password")
                         .email("admin@example.com")
-                        .roles(Set.of("USER", "ADMIN"))
+                        .role("ADMIN")
                         .build()
         );
         
@@ -159,7 +154,7 @@ class JwtTokenProviderTest {
                         .username("user1")
                         .password("password")
                         .email("user1@example.com")
-                        .roles(Set.of("USER"))
+                        .role("USER")
                         .build()
         );
         
@@ -168,7 +163,7 @@ class JwtTokenProviderTest {
                         .username("user2")
                         .password("password")
                         .email("user2@example.com")
-                        .roles(Set.of("USER"))
+                        .role("USER")
                         .build()
         );
         

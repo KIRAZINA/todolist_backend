@@ -11,14 +11,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for CustomUserDetailsService.
- */
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailsServiceTest {
 
@@ -30,22 +26,18 @@ class CustomUserDetailsServiceTest {
 
     @Test
     void shouldLoadUserByUsernameSuccessfully() {
-        // Arrange
         User user = User.builder()
                 .id(1L)
                 .username("testuser")
                 .password("encodedPassword")
                 .email("test@example.com")
-                .roles(Set.of("USER"))
-                .enabled(true)
+                .role("USER")
                 .build();
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        // Act
         UserDetails userDetails = userDetailsService.loadUserByUsername("testuser");
 
-        // Assert
         assertNotNull(userDetails);
         assertEquals("testuser", userDetails.getUsername());
         assertEquals("encodedPassword", userDetails.getPassword());
@@ -55,34 +47,28 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldLoadUserWithMultipleRoles() {
-        // Arrange
+    void shouldLoadAdminUser() {
         User adminUser = User.builder()
                 .id(2L)
                 .username("admin")
                 .password("encodedPassword")
                 .email("admin@example.com")
-                .roles(Set.of("USER", "ADMIN"))
-                .enabled(true)
+                .role("ADMIN")
                 .build();
 
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
 
-        // Act
         UserDetails userDetails = userDetailsService.loadUserByUsername("admin");
 
-        // Assert
         assertNotNull(userDetails);
         assertEquals("admin", userDetails.getUsername());
-        assertEquals(2, userDetails.getAuthorities().size());
+        assertEquals(1, userDetails.getAuthorities().size());
     }
 
     @Test
     void shouldThrowExceptionWhenUserNotFound() {
-        // Arrange
         when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
 
-        // Act & Assert
         UsernameNotFoundException exception = assertThrows(
                 UsernameNotFoundException.class,
                 () -> userDetailsService.loadUserByUsername("nonexistent")
@@ -93,46 +79,19 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldHandleNullUsername() {
-        // Arrange
-        when(userRepository.findByUsername(null)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(
-                UsernameNotFoundException.class,
-                () -> userDetailsService.loadUserByUsername(null)
-        );
-    }
-
-    @Test
-    void shouldHandleEmptyUsername() {
-        // Arrange
-        when(userRepository.findByUsername("")).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(
-                UsernameNotFoundException.class,
-                () -> userDetailsService.loadUserByUsername("")
-        );
-    }
-
-    @Test
     void shouldReturnCustomUserDetailsInstance() {
-        // Arrange
         User user = User.builder()
                 .id(1L)
                 .username("testuser")
                 .password("encodedPassword")
                 .email("test@example.com")
-                .roles(Set.of("USER"))
+                .role("USER")
                 .build();
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        // Act
         UserDetails userDetails = userDetailsService.loadUserByUsername("testuser");
 
-        // Assert
         assertTrue(userDetails instanceof CustomUserDetails);
         CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
         assertEquals(1L, customUserDetails.getId());

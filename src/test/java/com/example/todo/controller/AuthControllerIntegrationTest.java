@@ -1,6 +1,5 @@
 package com.example.todo.controller;
 
-import com.example.todo.dto.common.ApiResponse;
 import com.example.todo.dto.user.UserLoginRequest;
 import com.example.todo.dto.user.UserRegisterRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +30,7 @@ class AuthControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+                .andExpect(jsonPath("$.username").value("john"));
     }
 
     @Test
@@ -43,12 +42,11 @@ class AuthControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.success").value(false));
+                .andExpect(jsonPath("$.error").exists());
     }
 
     @Test
     void shouldLoginSuccessfully() throws Exception {
-        // first register
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new UserRegisterRequest("alice", "secret123", "alice@example.com"))))
@@ -60,9 +58,8 @@ class AuthControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(login)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.token").exists())
-                .andExpect(jsonPath("$.data.type").value("Bearer"));
+                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.type").value("Bearer"));
     }
 
     @Test
@@ -70,7 +67,57 @@ class AuthControllerIntegrationTest {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new UserLoginRequest("nonexistent", "wrong"))))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.success").value(false));
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldRejectInvalidRegistrationData() throws Exception {
+        // Empty username
+        UserRegisterRequest req = new UserRegisterRequest("", "password123", "test@example.com");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest());
+
+        // Empty password
+        req = new UserRegisterRequest("newuser", "", "test@example.com");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldRejectInvalidLoginData() throws Exception {
+        // Empty username
+        UserLoginRequest login = new UserLoginRequest("", "password");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(login)))
+                .andExpect(status().isBadRequest());
+
+        // Empty password
+        login = new UserLoginRequest("user", "");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(login)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldRejectLoginWithWrongPassword() throws Exception {
+        // Register user
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new UserRegisterRequest("correctuser", "correctpass", "correct@example.com"))))
+                .andExpect(status().isOk());
+
+        // Try login with wrong password
+        UserLoginRequest login = new UserLoginRequest("correctuser", "wrongpass");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(login)))
+                .andExpect(status().isUnauthorized());
     }
 }

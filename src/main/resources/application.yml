@@ -1,15 +1,24 @@
 spring:
   application:
     name: todolist_backend
-
-spring.profiles.active: dev
+  datasource:
+    url: jdbc:h2:mem:todo;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  flyway:
+    enabled: false
 
 server:
   port: 8080
 
-# JWT Configuration
-# IMPORTANT: In production, set JWT_SECRET environment variable!
-# The default value below is only for development/testing
 jwt:
-  secret: ${JWT_SECRET:default-dev-secret-key-at-least-256-bits-1234567890abcdef}
-  expiration-ms: ${JWT_EXPIRATION_MS:86400000}  # 24 hours
+  secret: ${JWT_SECRET:dev-secret-key-at-least-256-bits-long-123456}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}

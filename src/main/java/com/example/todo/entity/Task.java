@@ -2,26 +2,12 @@ package com.example.todo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * JPA entity representing a To-Do task.
- * <p>
- * Each task belongs to a single user (owner).
- * Supports priority, status, due date, and audit fields.
- * </p>
- */
 @Entity
-@Table(name = "tasks", indexes = {
-    @Index(name = "idx_task_user", columnList = "user_id"),
-    @Index(name = "idx_task_status", columnList = "status"),
-    @Index(name = "idx_task_due_date", columnList = "due_date"),
-    @Index(name = "idx_task_user_status", columnList = "user_id, status")
-})
+@Table(name = "tasks")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,16 +25,10 @@ public class Task {
     @Column(length = 1000)
     private String description;
 
-    /**
-     * Priority levels: LOW, MEDIUM, HIGH.
-     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Priority priority;
 
-    /**
-     * Status: TODO, IN_PROGRESS, DONE.
-     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
@@ -60,33 +40,16 @@ public class Task {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /**
-     * Audit: who created and last updated the task.
-     */
-    @Column(name = "created_by")
-    private String createdBy;
-
-    @Column(name = "updated_by")
-    private String updatedBy;
-
-    /**
-     * Enum for task priority.
-     */
     public enum Priority {
         LOW, MEDIUM, HIGH
     }
 
-    /**
-     * Enum for task status.
-     */
     public enum Status {
         TODO, IN_PROGRESS, DONE
     }

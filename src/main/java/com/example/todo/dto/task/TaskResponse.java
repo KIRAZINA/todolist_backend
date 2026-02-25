@@ -6,9 +6,6 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * DTO returned in task lists and details.
- */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,8 +20,6 @@ public class TaskResponse {
     private Task.Status status;
     private LocalDate dueDate;
     private Long userId;
-    private String createdBy;
-    private String updatedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

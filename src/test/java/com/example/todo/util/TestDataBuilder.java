@@ -8,15 +8,8 @@ import com.example.todo.entity.Task;
 import com.example.todo.entity.User;
 
 import java.time.LocalDate;
-import java.util.Set;
 
-/**
- * Utility class for building test data objects.
- * Provides consistent test data across all test classes.
- */
 public class TestDataBuilder {
-
-    // ==================== User Builders ====================
 
     public static User.UserBuilder defaultUser() {
         return User.builder()
@@ -24,8 +17,7 @@ public class TestDataBuilder {
                 .username("testuser")
                 .password("$2a$10$encodedPassword")
                 .email("test@example.com")
-                .roles(Set.of("USER"))
-                .enabled(true);
+                .role("USER");
     }
 
     public static User.UserBuilder adminUser() {
@@ -34,8 +26,7 @@ public class TestDataBuilder {
                 .username("admin")
                 .password("$2a$10$encodedPassword")
                 .email("admin@example.com")
-                .roles(Set.of("USER", "ADMIN"))
-                .enabled(true);
+                .role("ADMIN");
     }
 
     public static User.UserBuilder userWithId(Long id) {
@@ -45,8 +36,6 @@ public class TestDataBuilder {
     public static User.UserBuilder userWithUsername(String username) {
         return defaultUser().username(username).email(username + "@example.com");
     }
-
-    // ==================== Task Builders ====================
 
     public static Task.TaskBuilder defaultTask() {
         return Task.builder()
@@ -75,8 +64,6 @@ public class TestDataBuilder {
         return defaultTask().user(user);
     }
 
-    // ==================== DTO Builders ====================
-
     public static UserRegisterRequest.UserRegisterRequestBuilder defaultRegisterRequest() {
         return UserRegisterRequest.builder()
                 .username("newuser")
@@ -94,8 +81,8 @@ public class TestDataBuilder {
         return TaskCreateRequest.builder()
                 .title("New Task")
                 .description("Task Description")
-                .priority("MEDIUM")
-                .status("TODO")
+                .priority(Task.Priority.MEDIUM)
+                .status(Task.Status.TODO)
                 .dueDate(LocalDate.now().plusDays(7));
     }
 
@@ -103,12 +90,10 @@ public class TestDataBuilder {
         return TaskUpdateRequest.builder()
                 .title("Updated Task")
                 .description("Updated Description")
-                .priority("HIGH")
-                .status("IN_PROGRESS")
+                .priority(Task.Priority.HIGH)
+                .status(Task.Status.IN_PROGRESS)
                 .dueDate(LocalDate.now().plusDays(14));
     }
-
-    // ==================== Specific Test Scenarios ====================
 
     public static UserRegisterRequest invalidEmailRequest() {
         return defaultRegisterRequest()
@@ -128,25 +113,11 @@ public class TestDataBuilder {
                 .build();
     }
 
-    public static TaskCreateRequest invalidPriorityRequest() {
-        return defaultTaskCreateRequest()
-                .priority("INVALID")
-                .build();
-    }
-
-    public static TaskCreateRequest pastDueDateRequest() {
-        return defaultTaskCreateRequest()
-                .dueDate(LocalDate.now().minusDays(1))
-                .build();
-    }
-
     public static TaskCreateRequest minimalTaskRequest() {
         return TaskCreateRequest.builder()
                 .title("Minimal Task")
                 .build();
     }
-
-    // ==================== Collections ====================
 
     public static User[] multipleUsers(int count) {
         User[] users = new User[count];

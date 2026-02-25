@@ -2,7 +2,6 @@ package com.example.todo.service;
 
 import com.example.todo.dto.user.UserRegisterRequest;
 import com.example.todo.entity.User;
-import com.example.todo.mapper.UserMapper;
 import com.example.todo.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +17,7 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     @Mock UserRepository userRepository;
-    @Mock UserMapper userMapper;
     @Mock PasswordEncoder passwordEncoder;
-    @Mock AuditService auditService;
 
     @InjectMocks UserService userService;
 

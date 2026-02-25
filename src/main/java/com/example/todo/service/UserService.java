@@ -4,7 +4,6 @@ import com.example.todo.dto.user.UserRegisterRequest;
 import com.example.todo.dto.user.UserResponse;
 import com.example.todo.entity.User;
 import com.example.todo.exception.ResourceNotFoundException;
-import com.example.todo.mapper.UserMapper;
 import com.example.todo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,34 +11,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
-
-/**
- * Service for managing users: registration, login, retrieval.
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder; // Will be configured in Security step
-    private final AuditService auditService;
+    private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Register a new user.
-     * Hashes password with BCrypt.
-     * Assigns default role: USER.
-     */
     @Transactional
     public UserResponse register(UserRegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            log.warn("Registration failed: username already exists - {}", request.getUsername());
             throw new IllegalArgumentException("Username already exists");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            log.warn("Registration failed: email already exists - {}", request.getEmail());
             throw new IllegalArgumentException("Email already exists");
         }
 
@@ -47,29 +32,33 @@ public class UserService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
-                .roles(Set.of("USER")) // Default role
+                .role("USER")
                 .build();
 
         user = userRepository.save(user);
         log.info("New user created: {} (ID: {})", user.getUsername(), user.getId());
-        return userMapper.toResponse(user);
+        return toResponse(user);
     }
 
-    /**
-     * Find user by username (used in login).
-     */
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    /**
-     * Get user by ID.
-     */
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        return userMapper.toResponse(user);
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return toResponse(user);
+    }
+
+    private UserResponse toResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 }
