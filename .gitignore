@@ -32,6 +32,7 @@ out/
 
 # Log files
 *.log
+logs/
 
 # Package Files
 *.jar
@@ -65,3 +66,4 @@ src/main/resources/application-*.yml
 # Environment files
 .env
 .env.local
+.env.*
