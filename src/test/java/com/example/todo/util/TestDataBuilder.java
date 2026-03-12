@@ -1,7 +1,6 @@
 package com.example.todo.util;
 
-import com.example.todo.dto.task.TaskCreateRequest;
-import com.example.todo.dto.task.TaskUpdateRequest;
+import com.example.todo.dto.task.TaskRequest;
 import com.example.todo.dto.user.UserLoginRequest;
 import com.example.todo.dto.user.UserRegisterRequest;
 import com.example.todo.entity.Task;
@@ -77,22 +76,13 @@ public class TestDataBuilder {
                 .password("password123");
     }
 
-    public static TaskCreateRequest.TaskCreateRequestBuilder defaultTaskCreateRequest() {
-        return TaskCreateRequest.builder()
+    public static TaskRequest.TaskRequestBuilder defaultTaskRequest() {
+        return TaskRequest.builder()
                 .title("New Task")
                 .description("Task Description")
                 .priority(Task.Priority.MEDIUM)
                 .status(Task.Status.TODO)
                 .dueDate(LocalDate.now().plusDays(7));
-    }
-
-    public static TaskUpdateRequest.TaskUpdateRequestBuilder defaultTaskUpdateRequest() {
-        return TaskUpdateRequest.builder()
-                .title("Updated Task")
-                .description("Updated Description")
-                .priority(Task.Priority.HIGH)
-                .status(Task.Status.IN_PROGRESS)
-                .dueDate(LocalDate.now().plusDays(14));
     }
 
     public static UserRegisterRequest invalidEmailRequest() {
@@ -113,8 +103,8 @@ public class TestDataBuilder {
                 .build();
     }
 
-    public static TaskCreateRequest minimalTaskRequest() {
-        return TaskCreateRequest.builder()
+    public static TaskRequest minimalTaskRequest() {
+        return TaskRequest.builder()
                 .title("Minimal Task")
                 .build();
     }

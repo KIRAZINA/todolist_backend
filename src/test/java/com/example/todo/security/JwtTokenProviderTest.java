@@ -26,17 +26,15 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldGenerateAndValidateToken() {
-        CustomUserDetails userDetails = new CustomUserDetails(
-                com.example.todo.entity.User.builder()
-                        .username("testuser")
-                        .password("password")
-                        .email("test@example.com")
-                        .role("USER")
-                        .build()
-        );
+        com.example.todo.entity.User user = com.example.todo.entity.User.builder()
+                .username("testuser")
+                .password("password")
+                .email("test@example.com")
+                .role("USER")
+                .build();
         
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+                user, null, user.getAuthorities());
 
         String token = jwtTokenProvider.generateToken(auth);
 
@@ -46,17 +44,15 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldExtractUsernameFromToken() {
-        CustomUserDetails userDetails = new CustomUserDetails(
-                com.example.todo.entity.User.builder()
-                        .username("john.doe")
-                        .password("password")
-                        .email("john@example.com")
-                        .role("USER")
-                        .build()
-        );
+        com.example.todo.entity.User user = com.example.todo.entity.User.builder()
+                .username("john.doe")
+                .password("password")
+                .email("john@example.com")
+                .role("USER")
+                .build();
         
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+                user, null, user.getAuthorities());
 
         String token = jwtTokenProvider.generateToken(auth);
         String username = jwtTokenProvider.getUsernameFromToken(token);
@@ -109,17 +105,15 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldGenerateTokenWithCorrectClaims() {
-        CustomUserDetails userDetails = new CustomUserDetails(
-                com.example.todo.entity.User.builder()
-                        .username("testuser")
-                        .password("password")
-                        .email("test@example.com")
-                        .role("USER")
-                        .build()
-        );
+        com.example.todo.entity.User user = com.example.todo.entity.User.builder()
+                .username("testuser")
+                .password("password")
+                .email("test@example.com")
+                .role("USER")
+                .build();
         
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+                user, null, user.getAuthorities());
 
         String token = jwtTokenProvider.generateToken(auth);
 
@@ -129,17 +123,15 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldHandleAdminRole() {
-        CustomUserDetails userDetails = new CustomUserDetails(
-                com.example.todo.entity.User.builder()
-                        .username("admin")
-                        .password("password")
-                        .email("admin@example.com")
-                        .role("ADMIN")
-                        .build()
-        );
+        com.example.todo.entity.User user = com.example.todo.entity.User.builder()
+                .username("admin")
+                .password("password")
+                .email("admin@example.com")
+                .role("ADMIN")
+                .build();
         
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+                user, null, user.getAuthorities());
 
         String token = jwtTokenProvider.generateToken(auth);
 
@@ -149,28 +141,24 @@ class JwtTokenProviderTest {
 
     @Test
     void shouldGenerateDifferentTokensForDifferentUsers() {
-        CustomUserDetails userDetails1 = new CustomUserDetails(
-                com.example.todo.entity.User.builder()
-                        .username("user1")
-                        .password("password")
-                        .email("user1@example.com")
-                        .role("USER")
-                        .build()
-        );
+        com.example.todo.entity.User user1 = com.example.todo.entity.User.builder()
+                .username("user1")
+                .password("password")
+                .email("user1@example.com")
+                .role("USER")
+                .build();
         
-        CustomUserDetails userDetails2 = new CustomUserDetails(
-                com.example.todo.entity.User.builder()
-                        .username("user2")
-                        .password("password")
-                        .email("user2@example.com")
-                        .role("USER")
-                        .build()
-        );
+        com.example.todo.entity.User user2 = com.example.todo.entity.User.builder()
+                .username("user2")
+                .password("password")
+                .email("user2@example.com")
+                .role("USER")
+                .build();
         
         Authentication auth1 = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                userDetails1, null, userDetails1.getAuthorities());
+                user1, null, user1.getAuthorities());
         Authentication auth2 = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                userDetails2, null, userDetails2.getAuthorities());
+                user2, null, user2.getAuthorities());
 
         String token1 = jwtTokenProvider.generateToken(auth1);
         String token2 = jwtTokenProvider.generateToken(auth2);

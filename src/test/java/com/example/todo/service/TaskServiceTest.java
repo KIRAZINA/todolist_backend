@@ -10,12 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +48,7 @@ class TaskServiceTest {
     @Test
     void shouldCreateTaskWithDefaults() {
         User user = User.builder().id(1L).build();
-        var request = com.example.todo.dto.task.TaskCreateRequest.builder()
+        var request = com.example.todo.dto.task.TaskRequest.builder()
                 .title("Test")
                 .build();
 
@@ -83,7 +77,7 @@ class TaskServiceTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(taskRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        var request = com.example.todo.dto.task.TaskUpdateRequest.builder()
+        var request = com.example.todo.dto.task.TaskRequest.builder()
                 .title("New")
                 .status(Task.Status.DONE)
                 .build();
@@ -122,16 +116,14 @@ class TaskServiceTest {
     }
 
     @Test
-    void shouldGetTasksWithPagination() {
+    void shouldGetTasksSortedByCreationDate() {
         User user = User.builder().id(1L).build();
         Task t1 = Task.builder().id(1L).title("A").user(user).build();
         Task t2 = Task.builder().id(2L).title("B").user(user).build();
-        Pageable pageable = PageRequest.of(0, 2, Sort.by("id").descending());
-        Page<Task> page = new PageImpl<>(List.of(t2, t1), pageable, 2);
 
-        when(taskRepository.findByUser(eq(user), any(Pageable.class))).thenReturn(page);
+        when(taskRepository.findByUserOrderByCreatedAtDesc(user)).thenReturn(List.of(t2, t1));
 
-        var result = taskService.getTasks(user, 0, 2, "id", "desc");
+        var result = taskService.getTasks(user);
 
         assertEquals(2, result.size());
         assertEquals(2L, result.get(0).getId());

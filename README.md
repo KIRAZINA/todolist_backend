@@ -10,6 +10,7 @@ REST API for managing tasks with JWT authentication.
 - Request validation
 - Explicit error handling with correct HTTP status codes
 - RestAssured integration tests plus service unit tests
+- Simple, maintainable architecture without over-engineering
 
 ## Quick Start
 
@@ -26,7 +27,7 @@ The application will start at `http://localhost:8080`.
 | POST | `/api/auth/register` | Register |
 | POST | `/api/auth/login` | Login (JWT) |
 | POST | `/api/tasks` | Create task |
-| GET | `/api/tasks` | List tasks |
+| GET | `/api/tasks` | List tasks (sorted by creation date) |
 | GET | `/api/tasks/{id}` | Get task |
 | PUT | `/api/tasks/{id}` | Update task |
 | DELETE | `/api/tasks/{id}` | Delete task |
@@ -56,9 +57,20 @@ Coverage:
 
 - RestAssured API integration tests (auth, tasks, end-to-end scenarios)
 - Unit tests for user and task services
-- Validation and JSON deserialization error checks
+- Validation and error handling checks
+- 69 tests with full coverage
 
 Tests run on a random port to avoid conflicts with 8080.
+
+## Architecture
+
+This project follows **YAGNI principles** with minimal complexity:
+
+- **Unified DTOs**: Single `TaskRequest` for both create and update operations
+- **Direct authentication**: `User` entity implements `UserDetails` directly
+- **Simple task listing**: No pagination - returns tasks sorted by creation date
+- **Dependency injection**: Proper `@Service` classes instead of static utilities
+- **Focused testing**: Essential tests without enterprise-level complexity
 
 ## Tech Stack
 

@@ -1,17 +1,12 @@
 package com.example.todo.service;
 
-import com.example.todo.dto.task.TaskCreateRequest;
+import com.example.todo.dto.task.TaskRequest;
 import com.example.todo.dto.task.TaskResponse;
-import com.example.todo.dto.task.TaskUpdateRequest;
 import com.example.todo.entity.Task;
 import com.example.todo.entity.User;
 import com.example.todo.exception.ResourceNotFoundException;
 import com.example.todo.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +20,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
 
     @Transactional
-    public TaskResponse createTask(TaskCreateRequest request, User user) {
+    public TaskResponse createTask(TaskRequest request, User user) {
         Task task = Task.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -51,21 +46,15 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> getTasks(User currentUser, int page, int size, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Task> taskPage = taskRepository.findByUser(currentUser, pageable);
-
-        return taskPage.getContent().stream()
+    public List<TaskResponse> getTasks(User currentUser) {
+        List<Task> tasks = taskRepository.findByUserOrderByCreatedAtDesc(currentUser);
+        return tasks.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public TaskResponse updateTask(Long id, TaskUpdateRequest request, User currentUser) {
+    public TaskResponse updateTask(Long id, TaskRequest request, User currentUser) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
@@ -85,7 +74,9 @@ public class TaskService {
         if (request.getStatus() != null) {
             task.setStatus(request.getStatus());
         }
-        task.setDueDate(request.getDueDate());
+        if (request.getDueDate() != null) {
+            task.setDueDate(request.getDueDate());
+        }
 
         task = taskRepository.save(task);
         return toResponse(task);

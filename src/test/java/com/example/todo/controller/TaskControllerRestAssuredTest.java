@@ -182,8 +182,8 @@ class TaskControllerRestAssuredTest extends RestAssuredTestBase {
     }
 
     @Test
-    @DisplayName("Should get paginated list of tasks")
-    void shouldGetAllTasksWithPagination() {
+    @DisplayName("Should get list of tasks")
+    void shouldGetAllTasks() {
         // Create multiple tasks
         for (int i = 1; i <= 5; i++) {
             String taskBody = String.format("""
@@ -203,29 +203,15 @@ class TaskControllerRestAssuredTest extends RestAssuredTestBase {
                     .statusCode(201);
         }
 
-        // Get first page (3 items)
+        // Get all tasks
         given()
                 .header("Authorization", bearer(user1Token))
-                .queryParam("page", 0)
-                .queryParam("size", 3)
                 .when()
                 .get("/api/tasks")
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
-                .body("$", hasSize(3));
-
-        // Get second page (2 items)
-        given()
-                .header("Authorization", bearer(user1Token))
-                .queryParam("page", 1)
-                .queryParam("size", 3)
-                .when()
-                .get("/api/tasks")
-                .then()
-                .statusCode(200)
-                .contentType("application/json")
-                .body("$", hasSize(2));
+                .body("$", hasSize(5));
     }
 
     @Test
