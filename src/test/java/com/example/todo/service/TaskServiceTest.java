@@ -48,7 +48,7 @@ class TaskServiceTest {
     @Test
     void shouldCreateTaskWithDefaults() {
         User user = User.builder().id(1L).build();
-        var request = com.example.todo.dto.task.TaskRequest.builder()
+        var request = com.example.todo.dto.task.TaskCreateRequest.builder()
                 .title("Test")
                 .build();
 
@@ -77,7 +77,7 @@ class TaskServiceTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(taskRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        var request = com.example.todo.dto.task.TaskRequest.builder()
+        var request = com.example.todo.dto.task.TaskUpdateRequest.builder()
                 .title("New")
                 .status(Task.Status.DONE)
                 .build();

@@ -1,19 +1,23 @@
 package com.example.todo.security;
 
-import com.example.todo.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
+
+    private static final int MIN_SECRET_LENGTH_BYTES = 32;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -21,19 +25,43 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
 
+    @PostConstruct
+    public void validateSecret() {
+        if (jwtSecret == null || jwtSecret.isEmpty()) {
+            throw new IllegalArgumentException(
+                "JWT secret must not be empty. " +
+                "Please set JWT_SECRET environment variable or jwt.secret property " +
+                "to a secure secret key (at least 32 characters/256 bits)."
+            );
+        }
+        byte[] secretBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        if (secretBytes.length < MIN_SECRET_LENGTH_BYTES) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "JWT secret must be at least %d bytes (256 bits) when encoded as UTF-8 for HS256 security. " +
+                    "Current secret length: %d bytes. " +
+                    "Please set JWT_SECRET environment variable or jwt.secret property to a secure secret key.",
+                    MIN_SECRET_LENGTH_BYTES, secretBytes.length
+                )
+            );
+        }
+    }
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(Authentication authentication) {
-        User userDetails = (User) authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
+        String role = userDetails.getAuthorities().iterator().next().getAuthority().replaceFirst("ROLE_", "");
+
         return Jwts.builder()
                 .subject(userDetails.getUsername())
-                .claim("role", userDetails.getRole())
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey())

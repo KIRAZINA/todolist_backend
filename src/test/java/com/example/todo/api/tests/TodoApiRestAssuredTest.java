@@ -79,7 +79,7 @@ class TodoApiRestAssuredTest extends RestAssuredTestBase {
                 .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("$", hasSize(0));
+                .body("content", hasSize(0));
     }
 
     @Test
@@ -138,7 +138,7 @@ class TodoApiRestAssuredTest extends RestAssuredTestBase {
                     }
                     """)
                 .when()
-                .put("/api/tasks/{id}")
+                .patch("/api/tasks/{id}")
                 .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -276,7 +276,7 @@ class TodoApiRestAssuredTest extends RestAssuredTestBase {
                 .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("$", hasSize(5));
+                .body("content", hasSize(5));
     }
 
     @Test
@@ -323,3 +323,4 @@ class TodoApiRestAssuredTest extends RestAssuredTestBase {
                 .statusCode(403);
     }
 }
+

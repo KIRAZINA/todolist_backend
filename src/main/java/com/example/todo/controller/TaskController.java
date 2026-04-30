@@ -1,8 +1,9 @@
 package com.example.todo.controller;
 
-import com.example.todo.dto.task.TaskRequest;
+import com.example.todo.dto.task.PaginatedTaskResponse;
+import com.example.todo.dto.task.TaskCreateRequest;
 import com.example.todo.dto.task.TaskResponse;
-import com.example.todo.entity.Task;
+import com.example.todo.dto.task.TaskUpdateRequest;
 import com.example.todo.entity.User;
 import com.example.todo.exception.ResourceNotFoundException;
 import com.example.todo.security.CurrentUserService;
@@ -11,8 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -29,7 +28,7 @@ public class TaskController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponse createTask(@Valid @RequestBody TaskRequest request) {
+    public TaskResponse createTask(@Valid @RequestBody TaskCreateRequest request) {
         return taskService.createTask(request, getCurrentUser());
     }
 
@@ -39,12 +38,14 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<TaskResponse> getTasks() {
-        return taskService.getTasks(getCurrentUser());
+    public PaginatedTaskResponse getTasks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return taskService.getTasksPaginated(getCurrentUser(), page, size);
     }
 
-    @PutMapping("/{id}")
-    public TaskResponse updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequest request) {
+    @PatchMapping("/{id}")
+    public TaskResponse updateTask(@PathVariable Long id, @Valid @RequestBody TaskUpdateRequest request) {
         return taskService.updateTask(id, request, getCurrentUser());
     }
 

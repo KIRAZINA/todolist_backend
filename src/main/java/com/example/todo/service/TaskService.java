@@ -1,12 +1,18 @@
 package com.example.todo.service;
 
-import com.example.todo.dto.task.TaskRequest;
+import com.example.todo.dto.task.PaginatedTaskResponse;
+import com.example.todo.dto.task.TaskCreateRequest;
 import com.example.todo.dto.task.TaskResponse;
+import com.example.todo.dto.task.TaskUpdateRequest;
 import com.example.todo.entity.Task;
 import com.example.todo.entity.User;
 import com.example.todo.exception.ResourceNotFoundException;
 import com.example.todo.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +26,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
 
     @Transactional
-    public TaskResponse createTask(TaskRequest request, User user) {
+    public TaskResponse createTask(TaskCreateRequest request, User user) {
         Task task = Task.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -53,8 +59,28 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public PaginatedTaskResponse getTasksPaginated(User currentUser, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Task> taskPage = taskRepository.findByUser(currentUser, pageable);
+
+        List<TaskResponse> content = taskPage.getContent().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+
+        return PaginatedTaskResponse.builder()
+                .content(content)
+                .number(taskPage.getNumber())
+                .size(taskPage.getSize())
+                .totalElements(taskPage.getTotalElements())
+                .totalPages(taskPage.getTotalPages())
+                .first(taskPage.isFirst())
+                .last(taskPage.isLast())
+                .build();
+    }
+
     @Transactional
-    public TaskResponse updateTask(Long id, TaskRequest request, User currentUser) {
+    public TaskResponse updateTask(Long id, TaskUpdateRequest request, User currentUser) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 

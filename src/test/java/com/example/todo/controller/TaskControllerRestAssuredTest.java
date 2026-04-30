@@ -148,12 +148,12 @@ class TaskControllerRestAssuredTest extends RestAssuredTestBase {
             }
             """;
 
-        given()
+         given()
                 .header("Authorization", bearer(user1Token))
                 .pathParam("id", taskId)
                 .body(updateTaskBody)
                 .when()
-                .put("/api/tasks/{id}")
+                .patch("/api/tasks/{id}")
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
@@ -211,7 +211,7 @@ class TaskControllerRestAssuredTest extends RestAssuredTestBase {
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
-                .body("$", hasSize(5));
+                .body("content", hasSize(5));
     }
 
     @Test
@@ -281,7 +281,7 @@ class TaskControllerRestAssuredTest extends RestAssuredTestBase {
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
-                .body("$", empty());
+                .body("content", empty());
     }
 
     @Test
@@ -316,12 +316,12 @@ class TaskControllerRestAssuredTest extends RestAssuredTestBase {
             }
             """;
 
-        given()
+         given()
                 .header("Authorization", bearer(user1Token))
                 .pathParam("id", taskId)
                 .body(updateBody)
                 .when()
-                .put("/api/tasks/{id}")
+                .patch("/api/tasks/{id}")
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
@@ -428,7 +428,7 @@ class TaskControllerRestAssuredTest extends RestAssuredTestBase {
                     }
                     """)
                 .when()
-                .put("/api/tasks/{id}")
+                .patch("/api/tasks/{id}")
                 .then()
                 .statusCode(404);
 

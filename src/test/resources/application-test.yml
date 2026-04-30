@@ -7,5 +7,6 @@ spring:
       ddl-auto: create-drop
 
 jwt:
-  secret: test-secret-key-1234567890abcdef1234567890abcdef1234567890abcdef
+  secret: test-secret-key-1234567890abcdef-1234567890abcdef
   expiration-ms: 86400000
+

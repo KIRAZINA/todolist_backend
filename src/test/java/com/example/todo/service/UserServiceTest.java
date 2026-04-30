@@ -2,6 +2,7 @@ package com.example.todo.service;
 
 import com.example.todo.dto.user.UserRegisterRequest;
 import com.example.todo.entity.User;
+import com.example.todo.exception.ResourceAlreadyExistsException;
 import com.example.todo.exception.ResourceNotFoundException;
 import com.example.todo.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class UserServiceTest {
     void shouldRejectDuplicateUsername() {
         when(userRepository.existsByUsername("john")).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ResourceAlreadyExistsException.class, () ->
                 userService.register(new UserRegisterRequest("john", "pass123", "john@example.com")));
 
         verify(userRepository, never()).save(any());
@@ -59,7 +60,7 @@ class UserServiceTest {
         when(userRepository.existsByUsername("john")).thenReturn(false);
         when(userRepository.existsByEmail("john@example.com")).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ResourceAlreadyExistsException.class, () ->
                 userService.register(new UserRegisterRequest("john", "pass123", "john@example.com")));
 
         verify(userRepository, never()).save(any());

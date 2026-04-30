@@ -17,6 +17,8 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final String email;
     private final String role;
+    private final String createdAt;
+    private final String updatedAt;
 
     public CustomUserDetails(User user) {
         this.id = user.getId();
@@ -24,6 +26,8 @@ public class CustomUserDetails implements UserDetails {
         this.password = user.getPassword();
         this.email = user.getEmail();
         this.role = user.getRole();
+        this.createdAt = user.getCreatedAt() != null ? user.getCreatedAt().toString() : null;
+        this.updatedAt = user.getUpdatedAt() != null ? user.getUpdatedAt().toString() : null;
     }
 
     @Override

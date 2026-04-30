@@ -79,7 +79,7 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void shouldReturnUserInstance() {
+    void shouldReturnCustomUserDetailsInstance() {
         User user = User.builder()
                 .id(1L)
                 .username("testuser")
@@ -92,9 +92,10 @@ class CustomUserDetailsServiceTest {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername("testuser");
 
-        assertTrue(userDetails instanceof User);
-        User returnedUser = (User) userDetails;
-        assertEquals(1L, returnedUser.getId());
-        assertEquals("test@example.com", returnedUser.getEmail());
+        assertTrue(userDetails instanceof CustomUserDetails);
+        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+        assertEquals(1L, customUserDetails.getId());
+        assertEquals("test@example.com", customUserDetails.getEmail());
+        assertEquals("testuser", customUserDetails.getUsername());
     }
 }

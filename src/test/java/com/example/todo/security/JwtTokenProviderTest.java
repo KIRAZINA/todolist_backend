@@ -7,10 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,8 +36,9 @@ class JwtTokenProviderTest {
                 .role("USER")
                 .build();
         
+        UserDetails userDetails = new CustomUserDetails(user);
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                user, null, user.getAuthorities());
+                userDetails, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
         String token = jwtTokenProvider.generateToken(auth);
 
@@ -51,8 +55,9 @@ class JwtTokenProviderTest {
                 .role("USER")
                 .build();
         
+        UserDetails userDetails = new CustomUserDetails(user);
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                user, null, user.getAuthorities());
+                userDetails, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
         String token = jwtTokenProvider.generateToken(auth);
         String username = jwtTokenProvider.getUsernameFromToken(token);
@@ -112,8 +117,9 @@ class JwtTokenProviderTest {
                 .role("USER")
                 .build();
         
+        UserDetails userDetails = new CustomUserDetails(user);
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                user, null, user.getAuthorities());
+                userDetails, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
         String token = jwtTokenProvider.generateToken(auth);
 
@@ -130,8 +136,9 @@ class JwtTokenProviderTest {
                 .role("ADMIN")
                 .build();
         
+        UserDetails userDetails = new CustomUserDetails(user);
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                user, null, user.getAuthorities());
+                userDetails, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
 
         String token = jwtTokenProvider.generateToken(auth);
 
@@ -155,10 +162,12 @@ class JwtTokenProviderTest {
                 .role("USER")
                 .build();
         
+        UserDetails ud1 = new CustomUserDetails(user1);
+        UserDetails ud2 = new CustomUserDetails(user2);
         Authentication auth1 = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                user1, null, user1.getAuthorities());
+                ud1, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
         Authentication auth2 = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                user2, null, user2.getAuthorities());
+                ud2, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
         String token1 = jwtTokenProvider.generateToken(auth1);
         String token2 = jwtTokenProvider.generateToken(auth2);

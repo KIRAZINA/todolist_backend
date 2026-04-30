@@ -3,6 +3,7 @@ package com.example.todo.service;
 import com.example.todo.dto.user.UserRegisterRequest;
 import com.example.todo.dto.user.UserResponse;
 import com.example.todo.entity.User;
+import com.example.todo.exception.ResourceAlreadyExistsException;
 import com.example.todo.exception.ResourceNotFoundException;
 import com.example.todo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,10 @@ public class UserService {
     @Transactional
     public UserResponse register(UserRegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new ResourceAlreadyExistsException("Username already exists");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new ResourceAlreadyExistsException("Email already exists");
         }
 
         User user = User.builder()

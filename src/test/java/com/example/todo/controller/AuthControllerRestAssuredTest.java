@@ -71,7 +71,7 @@ class AuthControllerRestAssuredTest extends RestAssuredTestBase {
                 .when()
                 .post("/api/auth/register")
                 .then()
-                .statusCode(400)
+                .statusCode(409)
                 .contentType("application/json")
                 .body("error", notNullValue())
                 .body("error", equalTo("Username already exists"));
