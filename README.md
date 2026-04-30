@@ -1,85 +1,198 @@
-# To-Do List Backend — Spring Boot 3 + JWT
+# Todo List Backend API
 
-REST API for managing tasks with JWT authentication.
+A production-ready REST API built with Spring Boot 3.5.6 and Java 17, featuring JWT-based authentication, role-based access control, and per-user data isolation.
 
-## Features
+## 🛠 Tech Stack
 
-- Java 17, Spring Boot 3.5.6
-- JWT authentication and user roles
-- H2 in-memory database for development and tests
-- Request validation
-- Explicit error handling with correct HTTP status codes
-- RestAssured integration tests plus service unit tests
-- Simple, maintainable architecture without over-engineering
+- **Framework**: Spring Boot 3.5.6
+- **Language**: Java 17 (LTS)
+- **Security**: Spring Security 6.x, JWT (jjwt 0.12.6), BCrypt
+- **Database**: H2 (in-memory), JPA/Hibernate
+- **Documentation**: SpringDoc OpenAPI 2.6.0, Swagger UI 5.x
+- **Tools**: Lombok, Jackson, Maven
+- **Testing**: JUnit 5.11.3, Mockito, RestAssured 5.5.0, AssertJ 3.26.3, Spring Boot Test
 
-## Quick Start
+## ✨ Core Features
+
+- **JWT Authentication**
+  - Secure registration & login endpoints
+  - 24-hour default token expiration (configurable)
+  - Stateless session management
+  - HS256 algorithm with 256-bit secret key
+
+- **Role-Based Access Control (RBAC)**
+  - `USER` and `ADMIN` roles with method-level security
+  - `@Secured` and `@PreAuthorize` annotations
+  - Fine-grained endpoint protection
+
+- **Task Management**
+  - Full CRUD operations for todo items
+  - Per-user data isolation via `userId` foreign key
+  - Default values: `completed: false`, `createdAt: NOW`
+  - Input validation with Bean Validation annotations
+
+- **Layered Architecture**
+  - Clean separation: Controller → Service → Repository
+  - DTO pattern for request/response objects
+  - Global exception handling with `@ControllerAdvice`
+  - Centralized error responses with proper HTTP status codes
+
+## 🚀 How to Run
+
+### Prerequisites
+- Java 17+ (`java -version`)
+- Maven 3.8+ (`mvn -v`)
+
+### Build & Run
 
 ```bash
+# Clean and build the project
+mvn clean install
+
+# Run the application
 mvn spring-boot:run
+
+# Or use the Maven wrapper (if available)
+./mvnw clean spring-boot:run
 ```
 
-The application will start at `http://localhost:8080`.
+The application starts on **`http://localhost:8080`** by default.
 
-## Endpoints
+## 🔐 Security & JWT Usage
 
+### Token Configuration
+- **Default Expiration**: 24 hours (86,400,000 ms)
+- **Secret**: 256-bit Base64-encoded key (set via `JWT_SECRET` env var)
+- **Algorithm**: HS256
+
+### Authentication Endpoints
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Register |
-| POST | `/api/auth/login` | Login (JWT) |
-| POST | `/api/tasks` | Create task |
-| GET | `/api/tasks` | List tasks (sorted by creation date) |
-| GET | `/api/tasks/{id}` | Get task |
-| PUT | `/api/tasks/{id}` | Update task |
-| DELETE | `/api/tasks/{id}` | Delete task |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | User registration |
+| POST | `/api/auth/login` | JWT token generation |
 
-## Configuration
+### Secured Endpoints
+All endpoints under `/api/**` (except `/api/auth/**`) require a valid JWT.
 
-Main settings are in `src/main/resources/application.yml`.
+**Bearer Token Format:**
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ0...
+```
 
-Environment variables:
+**Role Mapping:**
+- `ROLE_USER` → Standard user operations (own tasks)
+- `ROLE_ADMIN` → User + admin operations (all tasks, user management)
 
-- `JWT_SECRET` — secret for JWT signing (defaults to a dev value)
-- `JWT_EXPIRATION_MS` — token TTL in ms (defaults to 86400000)
+## 📚 API Documentation
 
-## Database
+### Swagger UI
+Open in your browser:
+```
+http://localhost:8080/swagger-ui.html
+```
 
-- H2 in-memory
-- H2 console: `http://localhost:8080/h2-console`
-- JDBC URL: `jdbc:h2:mem:todo`
+The standalone `swagger-ui.html` page is configured to fetch the OpenAPI specification from SpringDoc's default endpoint (`/v3/api-docs`). The UI includes:
+- Interactive API testing
+- Authentication setup via "Authorize" button
+- Request/response examples
+- Schema documentation
 
-## Testing
+**Note**: SpringDoc OpenAPI dependency is already included in `pom.xml`. The `/v3/api-docs` endpoint will be available automatically.
 
+### Base Path
+All API routes are prefixed with `/api`.
+
+### Example Request
+```bash
+# Get all tasks (requires auth)
+curl -X GET http://localhost:8080/api/tasks \
+  -H "Authorization: Bearer <your_jwt_token>"
+
+# Create a new task
+curl -X POST http://localhost:8080/api/tasks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -d '{"title":"Learn Spring Boot","description":"Complete the tutorial","dueDate":"2024-12-31"}'
+```
+
+## ⚙️ Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `JWT_SECRET` | Base64-encoded 256-bit secret | *auto-generated* |
+| `JWT_EXPIRATION_MS` | Token lifetime in milliseconds | `86400000` |
+| `H2_CONSOLE_ENABLED` | Enable H2 web console | `true` |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `default` |
+
+### H2 Console
+When enabled, access the database at:
+```
+http://localhost:8080/h2-console
+JDBC URL: jdbc:h2:mem:tododb
+User:     sa
+Password: (leave empty)
+```
+
+## 📁 Project Structure
+
+```
+src/main/java/com/example/todo/
+├── config/            # Spring configuration classes
+├── security/          # JWT filter, SecurityConfig, UserDetailsService
+├── controller/        # REST endpoints (@RestController)
+├── service/           # Business logic (@Service)
+├── repository/        # Data access layer (@Repository, JPA)
+├── entity/            # JPA entities (Task, User)
+├── dto/               # Request/Response DTOs
+│   ├── request/       # Incoming payload classes
+│   └── response/      # Outgoing payload classes
+└── exception/         # Global exception handler (@ControllerAdvice)
+```
+
+## 🧪 Testing
+
+### Run All Tests
 ```bash
 mvn test
 ```
 
-Coverage:
+### Test Coverage
+- **Unit Tests**: Service & Repository layers (JUnit 5, Mockito)
+- **Integration Tests**: Controller layer with `@WebMvcTest`
+- **API Tests**: RestAssured-based contract tests
+- **Security Tests**: JWT authentication and authorization
 
-- RestAssured API integration tests (auth, tasks, end-to-end scenarios)
-- Unit tests for user and task services
-- Validation and error handling checks
-- 69 tests with full coverage
+### Test Examples
+```bash
+# Run only unit tests
+mvn test -Dtest="*Test"
 
-Tests run on a random port to avoid conflicts with 8080.
+# Run only integration tests
+mvn test -Dtest="*IT"
 
-## Architecture
+# Run tests with specific profile
+mvn test -Dspring.profiles.active=test
 
-This project follows **YAGNI principles** with minimal complexity:
+# Run with coverage report (if JaCoCo configured)
+mvn clean test jacoco:report
+```
 
-- **Unified DTOs**: Single `TaskRequest` for both create and update operations
-- **Direct authentication**: `User` entity implements `UserDetails` directly
-- **Simple task listing**: No pagination - returns tasks sorted by creation date
-- **Dependency injection**: Proper `@Service` classes instead of static utilities
-- **Focused testing**: Essential tests without enterprise-level complexity
+### Test Structure
+- `src/test/java/com/example/todo/`
+  - `controller/` - REST endpoint tests
+  - `service/` - Business logic tests
+  - `repository/` - Data access tests
+  - `security/` - Authentication/authorization tests
 
-## Tech Stack
+## 🤝 Next Steps / Roadmap
 
-- Spring Boot 3.5.6
-- Spring Security + JWT
-- Spring Data JPA (H2)
-- JUnit 5, Mockito
-- RestAssured
+- [ ] **PostgreSQL Migration** — Replace H2 with production-ready RDBMS
+- [ ] **Refresh Tokens** — Long-lived refresh + short-lived access tokens
+- [ ] **Audit Logging** — Entity change tracking with `@CreatedDate`, `@LastModifiedDate`
+- [ ] **Dockerization** — Multi-stage Dockerfile + Docker Compose
+- [ ] **CI/CD Pipeline** — GitHub Actions with Maven, JUnit, and security scanning
+- [ ] **Rate Limiting** — API endpoint protection against abuse
+- [ ] **Caching** — Redis integration for performance optimization
+- [ ] **API Versioning** — Support for multiple API versions
 
-## License
 
-MIT
